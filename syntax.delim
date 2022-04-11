@@ -1,0 +1,36 @@
+# Deliminated Continuations 
+# Effect handlers as a library impl
+# A fast interpreter (CPS transformation) 
+# Simple Compile to JS and interop
+# A Compiler (Using native stacks for Deliminited)
+# A runtime system (A garbage collector and basic runtime stuff)
+# A debugger
+# Rapid prototyping in Racket
+
+define a 10 
+
+define f fn (a, b) { return a + b }
+
+define add (a, b) {
+    let c = a + b; 
+    let d = a * b; 
+    c + d
+}
+
+define fun (d, e) {
+    d + delim {
+        grab (k) {
+
+        }
+    } + e
+}
+
+print ("This is nice")
+
+define name "ebresafe"
+
+define p [1,2,3]
+
+define c (1, 3)
+
+define other f (10)
