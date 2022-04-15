@@ -27,6 +27,10 @@ rule read_token = parse
     | "false" { FALSE }
     | "define" { DEFINE }
     | "fun" { FUN }
+    | "if" { IF }
+    | "then" { THEN }
+    | "else" { ELSE }
+    | "let" { LET }
     | "("  { LPAREN }
     | ")" { RPAREN }
     | "[" { LBRACK }

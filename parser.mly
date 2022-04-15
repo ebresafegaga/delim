@@ -4,6 +4,7 @@
 %token <string> STRING
 %token TRUE 
 %token FALSE 
+%token LET
 
 %token LBRACE RBRACE LPAREN RPAREN LBRACK RBRACK
 %token COMMA
@@ -11,6 +12,7 @@
 %token EQUALS
 %token DEFINE 
 %token FUN
+%token IF THEN ELSE 
 
 %token PLUS MINUS TIMES DIV EQUALEQUAL GT LT
 
@@ -36,10 +38,10 @@ top:
 
 define:     
     | DEFINE; name = ID; value = expression 
-        { Syntax.TopExpr (name, value) }
+        { Syntax.TopDefine (name, value) }
     | DEFINE; name = ID; params = param_list; LBRACE; body = expression; RBRACE 
         { let lambda = Syntax.EFun (params, body) in 
-          Syntax.TopExpr (name, lambda) }
+          Syntax.TopDefine (name, lambda) }
 
 expression: 
     | name = ID { Syntax.EVar name }
@@ -56,7 +58,7 @@ expression:
     | rator = expression; LPAREN; rands = expr_list; RPAREN; 
         { Syntax.EApply (rator, rands) }
     | left = expression; op = operator; right = expression; 
-        { Syntax.EApply (op, [left; right]) }
+        { Syntax.EApply (Syntax.EVar op, [left; right]) }
     | LBRACK; exprs = expr_list; RBRACK { Syntax.EList exprs }
 
 %inline operator: 
@@ -64,6 +66,7 @@ expression:
     | DIV { "/" }
     | PLUS { "+" }
     | MINUS { "-" }
+    | EQUALEQUAL { "==" }
     | GT { ">" }
     | LT { "<" }
 
