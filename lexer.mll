@@ -25,6 +25,8 @@ let id = ['a'-'z' 'A'-'Z' '_'] ['a'-'z' 'A'-'Z' '0'-'9' '_']*
 rule read_token = parse 
     | "true" { TRUE }   
     | "false" { FALSE }
+    | "define" { DEFINE }
+    | "fun" { FUN }
     | "("  { LPAREN }
     | ")" { RPAREN }
     | "[" { LBRACK }

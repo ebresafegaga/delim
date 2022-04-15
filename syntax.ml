@@ -1,16 +1,13 @@
-type name = string 
-
-type operator = OpAdd | OpMinus | OpTimes | OpDiv
+type name = string
 
 type expr =
+  | EVar of name
   | EString of string
-  | EInteger of int
+  | EInt of int
   | EBool of bool
-  | EPair of expr * expr
   | EList of expr list
-  | EOp of operator * expr * expr
   | ELet of name * expr * expr
-  | ELambda of name * expr
+  | EFun of name list * expr
   | EIf of expr * expr * expr
   | EApply of expr * expr list
 
