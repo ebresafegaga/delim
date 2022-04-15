@@ -9,7 +9,7 @@
 
 define a 10 
 
-define f fn (a, b) { return a + b }
+define f fn (a, b) { a + b }
 
 define add (a, b) {
     let c = a + b; 
@@ -17,7 +17,7 @@ define add (a, b) {
     c + d
 }
 
-define fun (d, e) {
+define NAME fun (d, e) {
     d + delim {
         grab (k) {
 
