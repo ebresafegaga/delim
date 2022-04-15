@@ -12,7 +12,7 @@
 %token EQUALS
 %token DEFINE 
 %token FUN
-%token IF THEN ELSE 
+%token IF ELSE 
 
 %token PLUS MINUS TIMES DIV EQUALEQUAL GT LT
 
@@ -37,11 +37,9 @@ top:
     | e = expression { Syntax.TopExpr e }
 
 define:     
-    | DEFINE; name = ID; value = expression 
-        { Syntax.TopDefine (name, value) }
+    | DEFINE; name = ID; value = expression { Syntax.TopDefine (name, value) }
     | DEFINE; name = ID; params = param_list; LBRACE; body = expression; RBRACE 
-        { let lambda = Syntax.EFun (params, body) in 
-          Syntax.TopDefine (name, lambda) }
+        { Syntax.TopDefine (name, Syntax.EFun (params, body)) }
 
 expression: 
     | name = ID { Syntax.EVar name }
@@ -49,11 +47,11 @@ expression:
     | value = STRING { Syntax.EString value }
     | TRUE { Syntax.EBool true }
     | FALSE { Syntax.EBool false }
-    | IF; pred = expression; THEN tbranch = expression; ELSE fbranch = expression
+    | IF; pred = expression; LBRACE; tbranch = expression; RBRACE; ELSE; LBRACE; fbranch = expression; RBRACE
         { Syntax.EIf (pred, tbranch, fbranch) }
     | LET; name = ID; EQUALS; value = expression; SEMICOLON; body = expression
         { Syntax.ELet (name, value, body) } 
-    | FUN; params = param_list; body = expression
+    | FUN; params = param_list; LBRACE; body = expression; RBRACE
         { Syntax.EFun (params, body) }
     | rator = expression; LPAREN; rands = expr_list; RPAREN; 
         { Syntax.EApply (rator, rands) }
