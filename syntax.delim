@@ -23,4 +23,4 @@ define name "ebresafe"
 
 define p [1,2,3]
 
-define other f (10)
+define other f (10
