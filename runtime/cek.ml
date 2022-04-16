@@ -12,9 +12,9 @@ and env = (Syntax.name * value) list
 
 type kont = 
   | KDone
-  | KLet of Syntax.name * value * kont 
+  | KLet of env * Syntax.expr * kont 
+  | KList of env * Syntax.expr list * kont 
+  | KIf of env * Syntax.expr * Syntax.expr * kont 
+  | KApply of env * Syntax.expr list * kont 
 
-type machine = Syntax.expr * env * kont 
-
-let step (exp, env, cont) = 
-  failwith ""
+type machine = Syntax.expr * env * kont
