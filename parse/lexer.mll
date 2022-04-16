@@ -1,6 +1,6 @@
 {
     open Lexing 
-    open Parser
+    open Grammar
 
     exception SyntaxError of Lexing.position * string
 
