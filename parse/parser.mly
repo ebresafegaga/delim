@@ -1,3 +1,6 @@
+%{
+    open Ast
+%}
 %token <int> INT
 // %token <float> FLOAT
 %token <string> ID

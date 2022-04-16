@@ -1,3 +1,5 @@
+open Parse
+
 let print_error_position lexbuf =
   let open Lexing in 
   let pos = lexbuf.lex_curr_p in

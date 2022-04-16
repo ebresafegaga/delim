@@ -1,4 +1,5 @@
 (* CEK Machine *)
+open Ast
 
 type value = 
   | VString of string 
