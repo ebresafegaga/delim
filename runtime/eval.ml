@@ -110,6 +110,12 @@ let empty arg =
   | [VList vs] -> VBool (List.length vs = 0)
   | _ -> failwith "Expected list"
 
+let cons args = 
+  ensure_length args 2; 
+  match args with 
+  | [any; VList vs] -> VList (any :: vs)
+  | _ -> failwith "Expected a list"
+
 let print arg = 
   ensure_length arg 1; 
   print_endline (print_value (List.hd arg)) ;
@@ -136,7 +142,8 @@ let primitives =
       ">", gt;
       "length", length; 
       "first", first; 
-      "rest", rest; 
+      "rest", rest;
+      "cons", cons; 
       "empty", empty; 
       "print", print]
     |> List.map (fun (name, value) -> name, VBuiltin value)
