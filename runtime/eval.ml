@@ -52,7 +52,7 @@ let rec eval env expr =
     match eval env f with
     | VClosure (None, params, closed_env, body) -> 
       let env = List.combine params args @ closed_env in 
-      eval env body 
+      eval env body
      | VClosure (Some name, params, closed_env, body) as f -> 
       let env = List.combine params args @ closed_env in 
       eval (bind name f env) body 
@@ -110,15 +110,35 @@ let empty arg =
   | [VList vs] -> VBool (List.length vs = 0)
   | _ -> failwith "Expected list"
 
+let print arg = 
+  ensure_length arg 1; 
+  print_endline (print_value (List.hd arg)) ;
+  VBool false
+
+let lt args = 
+  ensure_length args 2;
+  match args with 
+  | [VInt a; VInt b] -> VBool (a < b)
+  | _ -> failwith "Expected integers as arguments"
+
+let gt args = 
+  ensure_length args 2;
+  match args with 
+  | [VInt a; VInt b] -> VBool (a > b)
+  | _ -> failwith "Expected integers as arguments"
+
 let primitives = 
     [ "+", plus; 
       "-", minus; 
       "*", times; 
       "/", div; 
+      "<", lt; 
+      ">", gt;
       "length", length; 
       "first", first; 
       "rest", rest; 
-      "empty", empty ]
+      "empty", empty; 
+      "print", print]
     |> List.map (fun (name, value) -> name, VBuiltin value)
 
 let process_toplevel = process_toplevel primitives
