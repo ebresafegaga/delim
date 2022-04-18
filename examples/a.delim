@@ -1,2 +1,21 @@
 
-define 
+
+define mylen (n) {
+    if empty (n) {
+        0
+    } else {
+        1 + mylen (n)
+    }
+}
+
+mylen ([1])
+
+
+# Closures 
+define adder (a) {
+    fun (b) { 
+        a + b
+    }
+}
+define add10 adder (10)
+define result add10 (10)

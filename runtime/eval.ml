@@ -6,7 +6,7 @@ type value =
   | VBool of bool 
   | VString of string
   | VList of value list 
-  | VClosure of Syntax.name list * env * Syntax.expr 
+  | VClosure of string option * Syntax.name list * env * Syntax.expr 
   | VBuiltin of (value list -> value)
 
 and env = (Syntax.name * value) list 
@@ -24,11 +24,9 @@ let rec print_value = function
   | VBuiltin _ -> "#<builtin>" 
 
 let lookup name env = 
-  env 
-  |> List.assoc_opt name
-  |> Option.fold 
-    ~none:(failwith (Printf.sprintf "Unbound Variable: %s" name))
-    ~some:Fun.id
+  match List.assoc name env with 
+  | value -> value 
+  | exception Not_found -> failwith (Printf.sprintf "Unbound Variable: %s" name)
 
 let bind name value env = (name, value) :: env 
 
@@ -48,13 +46,16 @@ let rec eval env expr =
     | VBool true -> eval env t 
     | VBool false -> eval env f 
     | _ -> failwith "Expected a bool expression at if predicate")
-  | EFun (params, body) -> VClosure (params, env, body)
+  | EFun (params, body) -> VClosure (None, params, env, body)
   | EApply (f, args) -> 
     let args = List.map (eval env) args in 
     match eval env f with
-    | VClosure (params, closed_env, body) -> 
+    | VClosure (None, params, closed_env, body) -> 
       let env = List.combine params args @ closed_env in 
       eval env body 
+     | VClosure (Some name, params, closed_env, body) as f -> 
+      let env = List.combine params args @ closed_env in 
+      eval (bind name f env) body 
     | VBuiltin f -> f args
     | _ -> failwith "Expected a function at application"
 
@@ -63,12 +64,9 @@ let rec process_toplevel env top =
   | [] -> []
   | Syntax.TopDefine (name, expr) :: rest -> (
     match eval env expr with 
-    | VClosure (params, closed_env, body) -> 
-      let env' = ref closed_env in
-      let closure =  VClosure (params, !env', body) in 
-      env' := (name, closure) :: closed_env ;
-      let env = bind name closure env in 
-      process_toplevel env rest 
+    | VClosure (None, params, closed_env, body) -> 
+      let closure =  VClosure (Some name, params, closed_env, body) in 
+      process_toplevel (bind name closure env) rest
     | value -> process_toplevel (bind name value env) rest)
   | TopExpr e :: rest -> eval env e :: process_toplevel env rest  
 
@@ -109,7 +107,7 @@ let rest arg =
 let empty arg = 
   ensure_length arg 1; 
   match arg with 
-  | [VList vs] -> VBool (List.length vs > 0)
+  | [VList vs] -> VBool (List.length vs = 0)
   | _ -> failwith "Expected list"
 
 let primitives = 
