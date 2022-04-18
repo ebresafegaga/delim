@@ -52,10 +52,10 @@ let rec eval env expr =
     match eval env f with
     | VClosure (None, params, closed_env, body) -> 
       let env = List.combine params args @ closed_env in 
-      eval env body
+      eval env body (* TCO *)
      | VClosure (Some name, params, closed_env, body) as f -> 
       let env = List.combine params args @ closed_env in 
-      eval (bind name f env) body 
+      eval (bind name f env) body (* TCO *)
     | VBuiltin f -> f args
     | _ -> failwith "Expected a function at application"
 
