@@ -2,7 +2,7 @@ open Parse
 open Runtime
 
 let () = 
-  let file = "./examples/a.delim" in 
+  let file = Sys.argv.(1) in 
   let result = Parser.from_file file in 
   match result with 
   | Ok syntax -> 

@@ -44,7 +44,7 @@ define:
     | DEFINE; name = ID; params = param_list; LBRACE; body = expression; RBRACE 
         { Syntax.TopDefine (name, Syntax.EFun (params, body)) }
 
-expression: 
+expression:
     | name = ID { Syntax.EVar name }
     | value = INT {  Syntax.EInt value }
     | value = STRING { Syntax.EString value }
@@ -61,6 +61,7 @@ expression:
     | left = expression; op = operator; right = expression; 
         { Syntax.EApply (Syntax.EVar op, [left; right]) }
     | LBRACK; exprs = expr_list; RBRACK { Syntax.EList exprs }
+    // | LPAREN; e = expression; RPAREN { e }
 
 %inline operator: 
     | TIMES { "*" } 
