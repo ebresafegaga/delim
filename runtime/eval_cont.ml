@@ -31,7 +31,7 @@ let lookup name env =
 let bind name value env = (name, value) :: env
 
 type cont = 
-  | ContEnd 
+  | ContEnd
   | ContList of env * value list * Syntax.expr list * cont  
   | ContLet of env * Syntax.name * Syntax.expr * cont 
   | ContIf of env * Syntax.expr * Syntax.expr * cont 
@@ -76,7 +76,7 @@ and apply_cont : cont -> value -> value = fun cont value ->
     | ContArg (env, f, argsv, arge :: argse, cont) -> 
       eval env arge (ContArg (env, f, value :: argsv, argse, cont))
 
-and apply_procedure ~lambda ~args cont = 
+and apply_procedure ~lambda ~args cont =
   match lambda with
   | VClosure (None, params, closed_env, body) -> 
     let env = List.combine params args @ closed_env in 
@@ -84,17 +84,110 @@ and apply_procedure ~lambda ~args cont =
   | VClosure (Some name, params, closed_env, body) as f -> 
     let env = List.combine params args @ closed_env in 
     eval (bind name f env) body cont (* TCO *)
-  | VBuiltin f -> apply_cont cont (f [])
+  | VBuiltin f -> apply_cont cont (f args)
   | _ -> failwith "Expected a function at application"
     
 type bounce = V of value | B of (unit -> bounce)
 
 type d = 
-  { f: value -> value list -> cont -> bounce;
-    lambda: value; 
+  { lambda: value; 
     args: value list; 
     cont: cont }
 
 let rec trampoline : bounce -> value = function 
   | V value -> value 
   | B b -> trampoline (b ())
+
+let eval env e = eval env e ContEnd
+
+
+let rec process_toplevel env top =
+  match top with 
+  | [] -> []
+  | Syntax.TopDefine (name, expr) :: rest -> (
+    match eval env expr with 
+    | VClosure (None, params, closed_env, body) -> 
+      let closure =  VClosure (Some name, params, closed_env, body) in 
+      process_toplevel (bind name closure env) rest
+    | value -> process_toplevel (bind name value env) rest)
+  | TopExpr e :: rest -> eval env e :: process_toplevel env rest  
+
+
+let ensure_length vs len = 
+  let len' = List.length vs in 
+  if len' <> len then failwith (Printf.sprintf "Expected %d arguments" len)
+
+let binary ~f args = 
+  ensure_length args 2 ; 
+  match args with 
+  | [VInt a; VInt b] -> VInt (f a b)
+  | _ -> failwith "Expected integers as arguments"
+
+let plus = binary ~f:(+)
+let minus = binary ~f:(-)
+let times = binary ~f:( * )
+let div = binary ~f:(/)
+
+let length arg = 
+  ensure_length arg 1; 
+  match arg with 
+  | [VList vs] -> VInt (List.length vs)
+  | _ -> failwith "Expected list"
+
+let first arg = 
+  ensure_length arg 1; 
+  match arg with 
+  | [VList vs] -> List.hd vs
+  | _ -> failwith "Expected list"
+
+let rest arg = 
+  ensure_length arg 1; 
+  match arg with 
+  | [VList vs] -> VList (List.tl vs)
+  | _ -> failwith "Expected list"
+
+let empty arg = 
+  ensure_length arg 1; 
+  match arg with 
+  | [VList vs] -> VBool (List.length vs = 0)
+  | _ -> failwith "Expected list"
+
+let cons args = 
+  ensure_length args 2; 
+  match args with 
+  | [any; VList vs] -> VList (any :: vs)
+  | _ -> failwith "Expected a list"
+
+let print arg = 
+  ensure_length arg 1; 
+  print_endline (print_value (List.hd arg)) ;
+  VBool false
+
+let lt args = 
+  ensure_length args 2;
+  match args with 
+  | [VInt a; VInt b] -> VBool (a < b)
+  | _ -> failwith "Expected integers as arguments"
+
+let gt args = 
+  ensure_length args 2;
+  match args with 
+  | [VInt a; VInt b] -> VBool (a > b)
+  | _ -> failwith "Expected integers as arguments"
+
+let primitives = 
+    [ "+", plus; 
+      "-", minus; 
+      "*", times; 
+      "/", div; 
+      "<", lt; 
+      ">", gt;
+      "length", length; 
+      "first", first; 
+      "rest", rest;
+      "cons", cons; 
+      "empty", empty; 
+      "print", print]
+    |> List.map (fun (name, value) -> name, VBuiltin value)
+
+let process_toplevel = process_toplevel primitives

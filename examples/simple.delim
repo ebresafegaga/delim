@@ -1,0 +1,36 @@
+
+
+define length (l) {
+    if empty (l) {
+        0
+    } else {
+        1 + length (rest (l))
+    }
+}
+
+define id (x) {
+    x
+}
+
+id (10)
+
+define sum (a, b) {
+    a + b
+}
+
+sum (1, 2)
+
+define list (a, b, c) {
+    [a, b, c, 3]
+}
+
+length (list (1, 2, 5))
+
+define sum (acc, start, finish) {
+    if start > finish {
+        acc
+    } else { 
+        sum (acc+start, start+1, finish)
+    }
+}
+# sum (0, 1, 1000000)

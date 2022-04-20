@@ -1,6 +1,56 @@
-
-fun () { false }
-
-define add (y) {
-    false
+define K (e) {
+    fun (a) {
+        e
+    }
 }
+
+define S (esv) {
+    fun (es) {
+        fun (e) {
+            esv (e) (es (e))
+        }
+    }
+}
+
+define I S (K) (K)
+
+define U (f) {
+    f (f)
+}
+
+define length U (fun (me) { 
+    fun (l) {
+        if empty (l) {
+            0 
+        } else {
+            1 + U (me) (rest (l))
+        }
+    }
+})
+
+define sum U (fun (me) {
+    fun (acc, start, finish) {
+        if start > finish {
+            acc
+        } else { 
+            U (me) (acc+start, start+1, finish)
+        }
+}})
+
+define Y (f) {
+    U (fun (me) {
+        f (fun (x) { U (me) (x) })
+    })
+}
+
+define len Y (fun (length) {
+    fun (l) {
+        if empty (l) {
+            0 
+        } else {
+            1 + length (rest (l))
+        }
+    }
+})
+
+len ([1, 2])

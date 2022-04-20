@@ -7,6 +7,6 @@ let () =
   match result with 
   | Ok syntax -> 
     syntax
-    |> Eval.process_toplevel
-    |> List.iter (fun top -> Printf.printf "%s\n" (Eval.print_value top))
+    |> Eval_cont.process_toplevel
+    |> List.iter (fun top -> Printf.printf "%s\n" (Eval_cont.print_value top))
   | Error e -> print_endline e 
