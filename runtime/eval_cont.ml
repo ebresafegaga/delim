@@ -30,6 +30,12 @@ let lookup name env =
 
 let bind name value env = (name, value) :: env
 
+let combine ~params ~args = 
+  let pl = List.length params and al = List.length args in
+  if pl <> al then 
+    failwith (Printf.sprintf "Expected %d arguments, but got %d" pl al)
+  else List.combine params args  
+
 type cont = 
   | ContEnd
   | ContList of env * value list * Syntax.expr list * cont  
@@ -79,10 +85,10 @@ and apply_cont : cont -> value -> value = fun cont value ->
 and apply_procedure ~lambda ~args cont =
   match lambda with
   | VClosure (None, params, closed_env, body) -> 
-    let env = List.combine params args @ closed_env in 
+    let env = combine ~params ~args @ closed_env in 
     eval env body cont (* TCO *)
   | VClosure (Some name, params, closed_env, body) as f -> 
-    let env = List.combine params args @ closed_env in 
+    let env = combine ~params ~args @ closed_env in 
     eval (bind name f env) body cont (* TCO *)
   | VBuiltin f -> apply_cont cont (f args)
   | _ -> failwith "Expected a function at application"

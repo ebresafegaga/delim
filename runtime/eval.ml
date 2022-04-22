@@ -30,6 +30,12 @@ let lookup name env =
 
 let bind name value env = (name, value) :: env 
 
+let combine ~params ~args = 
+  let pl = List.length params and al = List.length args in
+  if pl <> al then 
+    failwith (Printf.sprintf "Expected %d arguments, but got %d" pl al)
+  else List.combine params args  
+
 let rec eval env expr = 
   match expr with
   | Syntax.EVar name -> lookup name env 
@@ -51,10 +57,10 @@ let rec eval env expr =
     let args = List.map (eval env) args in 
     match eval env f with
     | VClosure (None, params, closed_env, body) -> 
-      let env = List.combine params args @ closed_env in 
+      let env = combine ~params ~args @ closed_env in 
       eval env body (* TCO *)
      | VClosure (Some name, params, closed_env, body) as f -> 
-      let env = List.combine params args @ closed_env in 
+      let env = combine ~params ~args @ closed_env in 
       eval (bind name f env) body (* TCO *)
     | VBuiltin f -> f args
     | _ -> failwith "Expected a function at application"

@@ -18,10 +18,14 @@ define U (f) {
     f (f)
 }
 
-define length U (fun (me) { 
+define Y (f) {
+    U (fun (me) { f (fun (x) { U (me) (x) }) })
+}
+
+define length U (fun (me) {
     fun (l) {
         if empty (l) {
-            0 
+            0
         } else {
             1 + U (me) (rest (l))
         }
@@ -37,12 +41,6 @@ define sum U (fun (me) {
         }
 }})
 
-define Y (f) {
-    U (fun (me) {
-        f (fun (x) { U (me) (x) })
-    })
-}
-
 define len Y (fun (length) {
     fun (l) {
         if empty (l) {
@@ -54,3 +52,4 @@ define len Y (fun (length) {
 })
 
 len ([1, 2])
+
